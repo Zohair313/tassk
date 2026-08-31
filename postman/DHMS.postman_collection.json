@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "DHMS - Domain & Hosting Management System API",
+    "description": "Complete API collection for the DHMS full-stack app.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "userToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "domainId", "value": "" },
+    { "key": "subscriptionId", "value": "" },
+    { "key": "planId", "value": "" },
+    { "key": "messageId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"UserPassword123!\"\n}" }
+          }
+        },
+        {
+          "name": "Login (User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["var res = pm.response.json();", "pm.collectionVariables.set('userToken', res.access_token);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@demo.com\",\n  \"password\": \"UserPassword123!\"\n}" }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["var res = pm.response.json();", "pm.collectionVariables.set('adminToken', res.access_token);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@demo.com\",\n  \"password\": \"AdminPassword123!\"\n}" }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Domains",
+      "item": [
+        {
+          "name": "List My Domains",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/domains", "host": ["{{baseUrl}}"], "path": ["domains"] }
+          }
+        },
+        {
+          "name": "Create Domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["var res = pm.response.json();", "if (res.domain) pm.collectionVariables.set('domainId', res.domain.id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/domains", "host": ["{{baseUrl}}"], "path": ["domains"] },
+            "body": { "mode": "raw", "raw": "{\n  \"domain_name\": \"example.com\",\n  \"registrar\": \"Namecheap\",\n  \"purchase_date\": \"2025-01-01\",\n  \"expiry_date\": \"2026-12-31\",\n  \"status\": \"Active\"\n}" }
+          }
+        },
+        {
+          "name": "DNS Health Check",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/domains/check?name=example.com", "host": ["{{baseUrl}}"], "path": ["domains", "check"], "query": [{ "key": "name", "value": "example.com" }] }
+          }
+        },
+        {
+          "name": "Update Domain",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/domains/{{domainId}}", "host": ["{{baseUrl}}"], "path": ["domains", "{{domainId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"domain_name\": \"example.com\",\n  \"registrar\": \"GoDaddy\",\n  \"purchase_date\": \"2025-01-01\",\n  \"expiry_date\": \"2027-12-31\",\n  \"status\": \"Active\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Domain",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/domains/{{domainId}}", "host": ["{{baseUrl}}"], "path": ["domains", "{{domainId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hosting",
+      "item": [
+        {
+          "name": "List Active Plans",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/hosting/plans", "host": ["{{baseUrl}}"], "path": ["hosting", "plans"] }
+          }
+        },
+        {
+          "name": "Subscribe Domain to Plan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/hosting/subscribe", "host": ["{{baseUrl}}"], "path": ["hosting", "subscribe"] },
+            "body": { "mode": "raw", "raw": "{\n  \"domain_id\": \"{{domainId}}\",\n  \"plan_id\": \"{{planId}}\",\n  \"next_billing_date\": \"2026-10-01\"\n}" }
+          }
+        },
+        {
+          "name": "List My Subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/hosting/subscriptions", "host": ["{{baseUrl}}"], "path": ["hosting", "subscriptions"] }
+          }
+        },
+        {
+          "name": "Admin: Create Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["var res = pm.response.json();", "if (res.plan) pm.collectionVariables.set('planId', res.plan.id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/hosting/plans", "host": ["{{baseUrl}}"], "path": ["hosting", "plans"] },
+            "body": { "mode": "raw", "raw": "{\n  \"plan_name\": \"Premium\",\n  \"storage_gb\": 100,\n  \"bandwidth_gb\": 1000,\n  \"price_monthly\": 30\n}" }
+          }
+        },
+        {
+          "name": "Admin: Update / Toggle Plan",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/hosting/plans/{{planId}}", "host": ["{{baseUrl}}"], "path": ["hosting", "plans", "{{planId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"is_active\": false,\n  \"price_monthly\": 35\n}" }
+          }
+        },
+        {
+          "name": "Admin: Delete Plan",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/hosting/plans/{{planId}}", "host": ["{{baseUrl}}"], "path": ["hosting", "plans", "{{planId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "User Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/dashboard/user", "host": ["{{baseUrl}}"], "path": ["dashboard", "user"] }
+          }
+        },
+        {
+          "name": "Admin Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/dashboard/admin", "host": ["{{baseUrl}}"], "path": ["dashboard", "admin"] }
+          }
+        },
+        {
+          "name": "Admin: User Directory",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/dashboard/admin/users", "host": ["{{baseUrl}}"], "path": ["dashboard", "admin", "users"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact & Support",
+      "item": [
+        {
+          "name": "Send Contact Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/contact", "host": ["{{baseUrl}}"], "path": ["contact"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"subject\": \"Billing question\",\n  \"message\": \"How do I upgrade my hosting plan?\"\n}" }
+          }
+        },
+        {
+          "name": "Admin: List Messages",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["var res = pm.response.json();", "if (res.messages && res.messages.length) pm.collectionVariables.set('messageId', res.messages[0].id);"] }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/contact", "host": ["{{baseUrl}}"], "path": ["contact"] }
+          }
+        },
+        {
+          "name": "Admin: Update Message Status",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/contact/{{messageId}}", "host": ["{{baseUrl}}"], "path": ["contact", "{{messageId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"closed\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
