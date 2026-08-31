@@ -19,7 +19,12 @@ These accounts are pre-loaded and work immediately (credentials are checked loca
 
 ```
 tassk/
-├── frontend/          # Next.js App Router + Tailwind (Vercel)
+├── backend/           # Node.js + Express REST API (reference/display)
+│   ├── routes/        # auth, domains, hosting, dashboard, contact
+│   ├── config/supabase.js
+│   ├── middleware/auth.js
+│   └── .env.example
+├── frontend/          # Next.js App Router + Tailwind (live on Vercel)
 │   ├── src/
 │   │   ├── app/       # pages (login, register, dashboard, admin, contact, faq)
 │   │   ├── components/# ChatBot, etc.
@@ -27,6 +32,8 @@ tassk/
 │   └── .env.example
 └── README.md
 ```
+
+> **Note:** The `backend/` folder contains the complete Express + Supabase API for reference/display. The **live Vercel app runs frontend-only** — `src/lib/api.ts` is a drop-in local data layer (seed data + `localStorage`) that serves the same endpoint contract with no network calls, so no backend is required to run it.
 
 ## Technology Stack
 
