@@ -14,6 +14,11 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to DHMS API' });
 });
 
+// Health Check (used by Render)
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 const authRoutes = require('./routes/auth');
 const domainRoutes = require('./routes/domains');
 const hostingRoutes = require('./routes/hosting');
